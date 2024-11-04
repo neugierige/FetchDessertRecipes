@@ -17,15 +17,18 @@ struct RecipeListView: View {
     }
     
     var body: some View {
-        VStack {
-            switch viewModel.state {
-            case .error:
-                errorView
-            case .loading:
-                loadingView
-            case .loaded:
-                loadedView
+        NavigationStack {
+            VStack {
+                switch viewModel.state {
+                case .error:
+                    errorView
+                case .loading:
+                    loadingView
+                case .loaded:
+                    loadedView
+                }
             }
+            .navigationTitle("Dessert recipe library")
         }
         .onAppear {
             if viewModel.state != .loaded {
