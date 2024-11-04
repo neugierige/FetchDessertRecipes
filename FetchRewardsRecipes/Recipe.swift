@@ -7,7 +7,11 @@
 
 import Foundation
 
-struct Recipe {
+struct RecipeList: Decodable {
+    var recipes: [Recipe]
+}
+
+struct Recipe: Decodable {
     var cuisine: String?
     var name: String?
     var photoUrlLarge: String?
@@ -29,7 +33,7 @@ struct Recipe {
             photoUrlLarge: photoUrlLarge,
             photoUrlSmall: photoUrlSmall,
             youtubeUrl: youtubeUrl,
-            uuid: uuid
+            uuid: uuid ?? UUID().uuidString
         )
     }
 }
@@ -41,5 +45,9 @@ struct ValidRecipe {
     var photoUrlLarge: String?
     var photoUrlSmall: String?
     var youtubeUrl: String?
-    var uuid: String?
+    var uuid: String
+}
+
+extension ValidRecipe: Identifiable {
+    var id: String { uuid }
 }
