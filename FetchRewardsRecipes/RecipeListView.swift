@@ -20,13 +20,11 @@ struct RecipeListView: View {
         VStack {
             switch viewModel.state {
             case .error:
-                Text("Something went wrong, please try again.")
+                errorView
             case .loading:
-                Text("Loading...")
-                ProgressView()
-                    .progressViewStyle(.circular)
+                loadingView
             case .loaded:
-                list
+                loadedView
             }
         }
         .onAppear {
@@ -38,7 +36,58 @@ struct RecipeListView: View {
         }
     }
     
-    var list: some View {
+    var errorView: some View {
+        List {
+            Spacer()
+                .frame(height: 100)
+                .listRowSeparator(.hidden)
+            HStack {
+                Spacer()
+                Text("Something went wrong, please try again.")
+                    .font(.headline)
+                    .multilineTextAlignment(.center)
+                Spacer()
+            }
+            .listRowSeparator(.hidden)
+            
+            if let error = viewModel.error {
+                Spacer()
+                    .frame(height: 16)
+                    .listRowSeparator(.hidden)
+                HStack {
+                    Spacer()
+                    Text(error.localizedDescription)
+                        .multilineTextAlignment(.center)
+                        
+                        .refreshable {
+                            Task {
+                                try await viewModel.loadRecipes()
+                            }
+                        }
+                    Spacer()
+                }
+                .listRowSeparator(.hidden)
+            }
+        }
+        .listStyle(.plain)
+        .refreshable {
+            Task {
+                try await viewModel.loadRecipes()
+            }
+        }
+    }
+    
+    var loadingView: some View {
+        VStack {
+            Text("Loading...")
+            Spacer()
+                .frame(height: 16)
+            ProgressView()
+                .progressViewStyle(.circular)
+        }
+    }
+    
+    var loadedView: some View {
         List {
             ForEach(viewModel.recipies) { recipe in
                 RecipeCellView(recipe: recipe)
