@@ -20,10 +20,10 @@ struct RecipeCellView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(recipe.name)
                             .font(.headline)
+                            .underline()
                         Text(recipe.cuisine)
                             .font(.subheadline)
                     }
-
                     Spacer()
                 }
                 .onTapGesture {
@@ -44,12 +44,20 @@ struct RecipeCellView: View {
                     }
             }
             .frame(minWidth: 0, maxWidth: .infinity)
+            .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
         }
+        .background(.yellow.opacity(0.3))
+        .cornerRadius(12)
+        .listRowSeparator(.hidden)
     }
 }
 
 #Preview {
-    RecipeCellView(recipe: demoRecipe)
+    List {
+        RecipeCellView(recipe: demoRecipe)
+        RecipeCellView(recipe: demoRecipe)
+    }
+    .listStyle(.plain)
 }
 
 let demoRecipe = ValidRecipe(
