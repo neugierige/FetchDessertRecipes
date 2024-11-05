@@ -22,5 +22,20 @@ struct DataValidityTests {
         }
         #expect(vm.state == .error)
     }
+    
+    @Test func malFormedDataTest() async throws {
+        let dataProvider = DataProvider()
+        let malformedUrl = URL(string: "https://d3jbb8n5wk0qxi.cloudfront.net/recipes-malformed.json")!
+        
+        let jsonDecoder = JSONDecoder()
+        jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
+        let recipeList: RecipeList = try await dataProvider.loadUrl(malformedUrl, jsonDecoder: jsonDecoder)
+        
+        let vm = RecipeListViewModel(sourceUrl: malformedUrl, dataProvider: dataProvider)
+        try await vm.loadRecipes()
+        
+        // RecipeListViewModel uses ValidRecipe, which excludes malformed recipe JSON
+        #expect(recipeList.recipes.count > vm.recipes.count)
+    }
 
 }
