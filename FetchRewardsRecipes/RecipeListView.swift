@@ -19,80 +19,67 @@ struct RecipeListView: View {
         NavigationStack {
             VStack {
                 switch viewModel.state {
-                case .error:
-                    errorView
+                case .error(let error):
+                    List {
+                        Spacer()
+                            .frame(height: 100)
+                            .listRowSeparator(.hidden)
+                        HStack {
+                            Spacer()
+                            Text("Something went wrong, please try again.")
+                                .font(.headline)
+                                .multilineTextAlignment(.center)
+                            Spacer()
+                        }
+                        .listRowSeparator(.hidden)
+                        
+                        Spacer()
+                            .frame(height: 16)
+                            .listRowSeparator(.hidden)
+                        
+                        HStack {
+                            Spacer()
+                            Text(error.localizedDescription)
+                                .multilineTextAlignment(.center)
+                            Spacer()
+                        }
+                        .listRowSeparator(.hidden)
+                    }
+                    .listStyle(.plain)
+                    .refreshable {
+                        Task {
+                            try await viewModel.loadRecipes(isReload: true)
+                        }
+                    }
                 case .loading:
-                    loadingView
-                case .loaded:
-                    loadedView
+                    VStack {
+                        Text("Loading...")
+                        Spacer()
+                            .frame(height: 16)
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                    }
+                case .loaded(let recipes):
+                    List {
+                        ForEach(recipes) { recipe in
+                            RecipeCellView(recipe: recipe)
+                        }
+                    }
+                    .listStyle(.plain)
+                    .refreshable {
+                        Task {
+                            try await viewModel.loadRecipes(isReload: true)
+                        }
+                    }
                 }
             }
             .navigationTitle("Dessert recipe library")
         }
         .onAppear {
-            if viewModel.state != .loaded {
+            if viewModel.state.shouldLoad {
                 Task {
                     try await viewModel.loadRecipes()
                 }
-            }
-        }
-    }
-    
-    var errorView: some View {
-        List {
-            Spacer()
-                .frame(height: 100)
-                .listRowSeparator(.hidden)
-            HStack {
-                Spacer()
-                Text("Something went wrong, please try again.")
-                    .font(.headline)
-                    .multilineTextAlignment(.center)
-                Spacer()
-            }
-            .listRowSeparator(.hidden)
-            
-            if let error = viewModel.error {
-                Spacer()
-                    .frame(height: 16)
-                    .listRowSeparator(.hidden)
-                HStack {
-                    Spacer()
-                    Text(error.localizedDescription)
-                        .multilineTextAlignment(.center)
-                    Spacer()
-                }
-                .listRowSeparator(.hidden)
-            }
-        }
-        .listStyle(.plain)
-        .refreshable {
-            Task {
-                try await viewModel.loadRecipes(isReload: true)
-            }
-        }
-    }
-    
-    var loadingView: some View {
-        VStack {
-            Text("Loading...")
-            Spacer()
-                .frame(height: 16)
-            ProgressView()
-                .progressViewStyle(.circular)
-        }
-    }
-    
-    var loadedView: some View {
-        List {
-            ForEach(viewModel.recipes) { recipe in
-                RecipeCellView(recipe: recipe)
-            }
-        }
-        .listStyle(.plain)
-        .refreshable {
-            Task {
-                try await viewModel.loadRecipes(isReload: true)
             }
         }
     }

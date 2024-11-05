@@ -12,7 +12,16 @@ class RecipeListViewModel: ObservableObject {
     static let recipeUrl = URL(string: "https://d3jbb8n5wk0qxi.cloudfront.net/recipes.json")!
     
     enum State {
-        case loading, loaded, error
+        case loading
+        case loaded(recipes: [ValidRecipe])
+        case error(Error)
+        
+        var shouldLoad: Bool {
+            return switch self {
+            case .loaded: false
+            default: true
+            }
+        }
     }
     
     @Published var state: State
@@ -20,9 +29,6 @@ class RecipeListViewModel: ObservableObject {
     var dataProvider: IURLSession
     
     struct NoRecipesError: Error {}
-    
-    @Published var recipes: [ValidRecipe] = []
-    @Published var error: Error? = nil
     
     private let jsonDecoder = JSONDecoder()
     
@@ -50,20 +56,15 @@ class RecipeListViewModel: ObservableObject {
         
         if validRecipes.isEmpty {
             let error = NoRecipesError()
-            await self.setState(.error, error: error)
+            await self.setState(.error(error))
             throw error
         } else {
-            await self.setState(.loaded)
+            await self.setState(.loaded(recipes: validRecipes))
         }
     }
     
     @MainActor
-    private func setState(_ state: State, recipes: [ValidRecipe] = [], error: Error? = nil) {
+    private func setState(_ state: State) {
         self.state = state
-        switch state {
-        case .error: self.error = error
-        case .loaded: self.recipes = recipes
-        case .loading: break
-        }
     }
 }
