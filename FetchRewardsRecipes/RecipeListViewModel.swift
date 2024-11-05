@@ -32,24 +32,18 @@ class RecipeListViewModel: ObservableObject {
     
     @MainActor
     func loadRecipes() async throws {
-        do {
-            let data = try await URLSession.loadAsync(url: RecipeListViewModel.recipeUrl)
-            let response = try jsonDecoder.decode(RecipeList.self, from: data)
-            let validRecipes = response.recipes
-                .compactMap { $0.asValidRecipe }
-                .sorted { $0.name < $1.name }
-            
-            if !validRecipes.isEmpty {
-                self.recipies = validRecipes
-                setState(.loaded)
-            } else {
-                self.error = NoRecipesError()
-                setState(.error)
-            }
-        }
-        catch {
-            self.error = error
-            setState(.error)
+        
+        let recipeList: RecipeList = try await URLSession.loadUrl(RecipeListViewModel.recipeUrl, jsonDecoder: jsonDecoder)
+        let validRecipes = recipeList.recipes
+            .compactMap { $0.asValidRecipe }
+            .sorted { $0.name < $1.name }
+        
+        if validRecipes.isEmpty {
+            self.error = NoRecipesError()
+            self.setState(.error)
+        } else {
+            self.recipes = validRecipes
+            self.setState(.loaded)
         }
     }
     
@@ -62,29 +56,15 @@ class RecipeListViewModel: ObservableObject {
 
 extension URLSession {
     
-    static func loadAsync(url: URL) async throws -> Data {
-        try await withCheckedThrowingContinuation { continuation in
-            loadUrl(url) { result in
-                continuation.resume(with: result)
-            }
-        }
-    }
-    
-    static func loadUrl(_ url: URL, completion: @escaping (Result<Data, Error>) -> Void) {
-        let request = URLRequest(
-            url: url,
-            cachePolicy: .useProtocolCachePolicy
-        )
+    static func loadUrl<T: Decodable>(
+        _ url: URL,
+        jsonDecoder: JSONDecoder,
+        cachePolicy: NSURLRequest.CachePolicy = .useProtocolCachePolicy) async throws -> T
+    {
+        let request = URLRequest(url: url, cachePolicy: cachePolicy)
         
-        let task = URLSession.shared.dataTask(with: request) { (data, _, error) in
-            if let data {
-                completion(.success(data))
-            } else if let error {
-                completion(.failure(error))
-            }
-        }
-        
-        task.resume()
-        
+        let (data, _) = try await URLSession.shared.data(for: request)
+        let decodedData = try jsonDecoder.decode(T.self, from: data)
+        return decodedData
     }
 }
