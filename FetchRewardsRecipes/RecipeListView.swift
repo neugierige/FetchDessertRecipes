@@ -56,11 +56,6 @@ struct RecipeListView: View {
                     Spacer()
                     Text(error.localizedDescription)
                         .multilineTextAlignment(.center)
-                        .refreshable {
-                            Task {
-                                try await viewModel.loadRecipes()
-                            }
-                        }
                     Spacer()
                 }
                 .listRowSeparator(.hidden)
@@ -69,7 +64,7 @@ struct RecipeListView: View {
         .listStyle(.plain)
         .refreshable {
             Task {
-                try await viewModel.loadRecipes()
+                try await viewModel.loadRecipes(isReload: true)
             }
         }
     }
@@ -93,7 +88,7 @@ struct RecipeListView: View {
         .listStyle(.plain)
         .refreshable {
             Task {
-                try await viewModel.loadRecipes()
+                try await viewModel.loadRecipes(isReload: true)
             }
         }
     }

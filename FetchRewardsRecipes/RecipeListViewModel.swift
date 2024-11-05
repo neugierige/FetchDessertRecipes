@@ -31,9 +31,13 @@ class RecipeListViewModel: ObservableObject {
     }
     
     @MainActor
-    func loadRecipes() async throws {
+    func loadRecipes(isReload: Bool = false) async throws {
+        let recipeList: RecipeList = try await URLSession.loadUrl(
+            RecipeListViewModel.recipeUrl,
+            jsonDecoder: jsonDecoder,
+            cachePolicy: isReload ? .reloadIgnoringLocalAndRemoteCacheData : .useProtocolCachePolicy
+        )
         
-        let recipeList: RecipeList = try await URLSession.loadUrl(RecipeListViewModel.recipeUrl, jsonDecoder: jsonDecoder)
         let validRecipes = recipeList.recipes
             .compactMap { $0.asValidRecipe }
             .sorted { $0.name < $1.name }
