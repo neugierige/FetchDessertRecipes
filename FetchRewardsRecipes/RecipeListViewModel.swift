@@ -16,25 +16,30 @@ class RecipeListViewModel: ObservableObject {
     }
     
     @Published var state: State
+    var sourceUrl: URL
     var dataProvider: IURLSession
     
     struct NoRecipesError: Error {}
     
     @Published var recipes: [ValidRecipe] = []
-    
     @Published var error: Error? = nil
     
     private let jsonDecoder = JSONDecoder()
     
-    init(state: State = .loading, dataProvider: IURLSession) {
+    init(
+        state: State = .loading,
+        sourceUrl: URL,
+        dataProvider: IURLSession
+    ) {
         self.state = state
+        self.sourceUrl = sourceUrl
         self.dataProvider = dataProvider
         jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
     }
     
     func loadRecipes(isReload: Bool = false) async throws {
         let recipeList: RecipeList = try await dataProvider.loadUrl(
-            RecipeListViewModel.recipeUrl,
+            sourceUrl,
             jsonDecoder: jsonDecoder,
             cachePolicy: isReload ? .reloadIgnoringLocalAndRemoteCacheData : .useProtocolCachePolicy
         )
@@ -45,17 +50,20 @@ class RecipeListViewModel: ObservableObject {
         
         if validRecipes.isEmpty {
             let error = NoRecipesError()
-            self.error = error
-            await self.setState(.error)
+            await self.setState(.error, error: error)
             throw error
         } else {
-            self.recipes = validRecipes
             await self.setState(.loaded)
         }
     }
     
     @MainActor
-    private func setState(_ state: State, error: Error? = nil) {
+    private func setState(_ state: State, recipes: [ValidRecipe] = [], error: Error? = nil) {
         self.state = state
+        switch state {
+        case .error: self.error = error
+        case .loaded: self.recipes = recipes
+        case .loading: break
+        }
     }
 }

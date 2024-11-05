@@ -100,6 +100,9 @@ struct RecipeListView: View {
 
 #Preview {
     let dataProvider = DataProvider()
-    let vm = RecipeListViewModel(dataProvider: dataProvider)
+    let vm = RecipeListViewModel(
+        sourceUrl: RecipeListViewModel.recipeUrl,
+        dataProvider: dataProvider
+    )
     RecipeListView(viewModel: vm)
 }

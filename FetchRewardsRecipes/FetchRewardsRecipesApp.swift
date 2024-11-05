@@ -13,7 +13,10 @@ struct FetchRewardsRecipesApp: App {
     var body: some Scene {
         WindowGroup {
             let dataProvider = DataProvider()
-            let vm = RecipeListViewModel(dataProvider: dataProvider)
+            let vm = RecipeListViewModel(
+                sourceUrl: RecipeListViewModel.recipeUrl,
+                dataProvider: dataProvider
+            )
             RecipeListView(viewModel: vm)
         }
     }
