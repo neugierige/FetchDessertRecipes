@@ -19,7 +19,7 @@ class RecipeListViewModel: ObservableObject {
     
     struct NoRecipesError: Error {}
     
-    @Published var recipies: [ValidRecipe] = []
+    @Published var recipes: [ValidRecipe] = []
     
     @Published var error: Error? = nil
     

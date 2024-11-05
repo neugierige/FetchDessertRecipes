@@ -56,7 +56,6 @@ struct RecipeListView: View {
                     Spacer()
                     Text(error.localizedDescription)
                         .multilineTextAlignment(.center)
-                        
                         .refreshable {
                             Task {
                                 try await viewModel.loadRecipes()
@@ -87,7 +86,7 @@ struct RecipeListView: View {
     
     var loadedView: some View {
         List {
-            ForEach(viewModel.recipies) { recipe in
+            ForEach(viewModel.recipes) { recipe in
                 RecipeCellView(recipe: recipe)
             }
         }
