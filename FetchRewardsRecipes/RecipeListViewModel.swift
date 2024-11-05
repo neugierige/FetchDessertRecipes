@@ -16,6 +16,7 @@ class RecipeListViewModel: ObservableObject {
     }
     
     @Published var state: State
+    var dataProvider: IURLSession
     
     struct NoRecipesError: Error {}
     
@@ -25,14 +26,14 @@ class RecipeListViewModel: ObservableObject {
     
     private let jsonDecoder = JSONDecoder()
     
-    init(state: State = .loading) {
+    init(state: State = .loading, dataProvider: IURLSession) {
         self.state = state
+        self.dataProvider = dataProvider
         jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
     }
     
-    @MainActor
     func loadRecipes(isReload: Bool = false) async throws {
-        let recipeList: RecipeList = try await URLSession.loadUrl(
+        let recipeList: RecipeList = try await dataProvider.loadUrl(
             RecipeListViewModel.recipeUrl,
             jsonDecoder: jsonDecoder,
             cachePolicy: isReload ? .reloadIgnoringLocalAndRemoteCacheData : .useProtocolCachePolicy
@@ -43,32 +44,18 @@ class RecipeListViewModel: ObservableObject {
             .sorted { $0.name < $1.name }
         
         if validRecipes.isEmpty {
-            self.error = NoRecipesError()
-            self.setState(.error)
+            let error = NoRecipesError()
+            self.error = error
+            await self.setState(.error)
+            throw error
         } else {
             self.recipes = validRecipes
-            self.setState(.loaded)
+            await self.setState(.loaded)
         }
     }
     
     @MainActor
     private func setState(_ state: State, error: Error? = nil) {
         self.state = state
-    }
-}
-
-
-extension URLSession {
-    
-    static func loadUrl<T: Decodable>(
-        _ url: URL,
-        jsonDecoder: JSONDecoder,
-        cachePolicy: NSURLRequest.CachePolicy = .useProtocolCachePolicy) async throws -> T
-    {
-        let request = URLRequest(url: url, cachePolicy: cachePolicy)
-        
-        let (data, _) = try await URLSession.shared.data(for: request)
-        let decodedData = try jsonDecoder.decode(T.self, from: data)
-        return decodedData
     }
 }
