@@ -1,6 +1,6 @@
 //
-//  FetchRewardsRecipesTests.swift
-//  FetchRewardsRecipesTests
+//  RecipeValidityTests.swift
+//  RecipeValidityTests
 //
 //  Created by Luyuan Nathan on 10/31/24.
 //
@@ -10,7 +10,7 @@ import Foundation
 
 @testable import FetchRewardsRecipes
 
-struct FetchRewardsRecipesTests {
+struct RecipeValidityTests {
     
     var invalidRecipes: [String] {
         [noNameRecipe, noSourceRecipe]
