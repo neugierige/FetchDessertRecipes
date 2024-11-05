@@ -8,6 +8,14 @@
 import SwiftUI
 import Kingfisher
 
+
+struct LayoutGuide {
+    static let gutter: CGFloat = 16
+    static let lineSpacing: CGFloat = 8
+    static let imageDimension: CGFloat = 80
+    static let iconDimension: CGFloat = 50
+}
+
 struct RecipeCellView: View {
     @Environment(\.openURL) var openURL
     
@@ -15,9 +23,9 @@ struct RecipeCellView: View {
     
     var body: some View {
         ZStack {
-            HStack(spacing: 20) {
+            HStack(spacing: LayoutGuide.gutter) {
                 HStack {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: LayoutGuide.lineSpacing) {
                         Text(recipe.name)
                             .font(.headline)
                             .underline()
@@ -30,25 +38,43 @@ struct RecipeCellView: View {
                     openURL(recipe.sourceUrl)
                 }
                 
-                KFImage(URL(maybeString: recipe.photoUrlSmall))
-                    .placeholder { Image(systemName: "questionmark.circle") }
-                    .resizable()
-                    .scaledToFill()
-                    .accessibilityLabel("\(recipe.name) recipe")
-                    .frame(width: 80, height: 80)
-                    .cornerRadius(8)
-                    .onTapGesture {
-                        if let videoUrl = URL(maybeString: recipe.youtubeUrl) {
+                if let videoUrl = URL(maybeString: recipe.youtubeUrl) {
+                    ZStack {
+                        recipeImage
+                        Button {
                             openURL(videoUrl)
+                        } label: {
+                            playIcon
                         }
                     }
+                } else {
+                    recipeImage
+                }
             }
             .frame(minWidth: 0, maxWidth: .infinity)
-            .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+            .padding(LayoutGuide.gutter)
         }
         .background(.yellow.opacity(0.3))
         .cornerRadius(12)
         .listRowSeparator(.hidden)
+    }
+    
+    var recipeImage: some View {
+        KFImage(URL(maybeString: recipe.photoUrlSmall))
+            .placeholder { Image(systemName: "questionmark.circle") }
+            .resizable()
+            .scaledToFill()
+            .accessibilityLabel("\(recipe.name) recipe")
+            .frame(width: LayoutGuide.imageDimension, height: LayoutGuide.imageDimension)
+            .cornerRadius(8)
+    }
+    
+    var playIcon: some View {
+        Image(systemName: "play.circle")
+            .resizable()
+            .foregroundStyle(.white)
+            .frame(width: LayoutGuide.iconDimension, height: LayoutGuide.iconDimension)
+            .opacity(0.6)
     }
 }
 
