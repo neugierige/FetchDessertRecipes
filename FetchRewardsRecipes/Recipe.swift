@@ -22,8 +22,8 @@ struct Recipe: Decodable {
     
     var asValidRecipe: ValidRecipe? {
         guard let cuisine,
-                let name,
-                let url = URL(maybeString: sourceUrl)
+              let name, !name.isEmpty,
+              let url = URL(maybeString: sourceUrl)
         else { return nil }
         
         return ValidRecipe(
