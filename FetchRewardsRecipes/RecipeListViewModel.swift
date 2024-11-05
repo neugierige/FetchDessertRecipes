@@ -15,13 +15,13 @@ class RecipeListViewModel: ObservableObject {
         case loading, loaded, error
     }
     
-    @Published
-    var state: State
+    @Published var state: State
     
     struct NoRecipesError: Error {}
     
-    var recipies: [ValidRecipe] = []
-    var error: Error? = nil
+    @Published var recipies: [ValidRecipe] = []
+    
+    @Published var error: Error? = nil
     
     private let jsonDecoder = JSONDecoder()
     
@@ -30,7 +30,7 @@ class RecipeListViewModel: ObservableObject {
         jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
     }
     
-    
+    @MainActor
     func loadRecipes() async throws {
         do {
             let data = try await URLSession.loadAsync(url: RecipeListViewModel.recipeUrl)
@@ -41,15 +41,15 @@ class RecipeListViewModel: ObservableObject {
             
             if !validRecipes.isEmpty {
                 self.recipies = validRecipes
-                await setState(.loaded)
+                setState(.loaded)
             } else {
                 self.error = NoRecipesError()
-                await setState(.error)
+                setState(.error)
             }
         }
         catch {
             self.error = error
-            await setState(.error)
+            setState(.error)
         }
     }
     

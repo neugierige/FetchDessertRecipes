@@ -9,12 +9,7 @@ import SwiftUI
 
 struct RecipeListView: View {
     
-    @ObservedObject
-    var viewModel: RecipeListViewModel
-    
-    init(viewModel: RecipeListViewModel) {
-        self.viewModel = viewModel
-    }
+    @StateObject var viewModel: RecipeListViewModel = RecipeListViewModel()
     
     var body: some View {
         NavigationStack {

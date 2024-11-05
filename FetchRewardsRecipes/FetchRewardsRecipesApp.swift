@@ -10,11 +10,9 @@ import SwiftUI
 @main
 struct FetchRewardsRecipesApp: App {
     
-    let recipeViewModel = RecipeListViewModel()
-    
     var body: some Scene {
         WindowGroup {
-            RecipeListView(viewModel: recipeViewModel)
+            RecipeListView()
         }
     }
 }
