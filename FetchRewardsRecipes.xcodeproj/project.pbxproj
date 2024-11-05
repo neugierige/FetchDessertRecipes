@@ -57,11 +57,6 @@
 			path = FetchRewardsRecipesTests;
 			sourceTree = "<group>";
 		};
-		CFF2672F2CD3E0C900D49D99 /* FetchRewardsRecipesUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = FetchRewardsRecipesUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,7 +90,6 @@
 			children = (
 				CFF267142CD3E0C800D49D99 /* FetchRewardsRecipes */,
 				CFF267252CD3E0C900D49D99 /* FetchRewardsRecipesTests */,
-				CFF2672F2CD3E0C900D49D99 /* FetchRewardsRecipesUITests */,
 				CFF267F92CD9518B00D49D99 /* Frameworks */,
 				CFF267132CD3E0C800D49D99 /* Products */,
 			);
@@ -179,9 +173,6 @@
 			);
 			dependencies = (
 				CFF2672E2CD3E0C900D49D99 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				CFF2672F2CD3E0C900D49D99 /* FetchRewardsRecipesUITests */,
 			);
 			name = FetchRewardsRecipesUITests;
 			packageProductDependencies = (
